@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rahim Forex Exchange</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+body{background:#0A1F44;color:white;}
+header{display:flex;justify-content:space-between;align-items:center;padding:20px 8%;background:#081735;}
+.logo{font-size:24px;font-weight:700;color:#4DA3FF;} .logo span{color:white;}
+nav a{color:white;text-decoration:none;margin-left:25px;font-weight:400;}
+.hero{padding:100px 8%;text-align:center;}
+.hero h1{font-size:42px;margin-bottom:20px;}
+.hero p{font-size:18px;color:#cbd5e1;}
+.btn{margin-top:30px;padding:12px 25px;background:#1E3A8A;border:none;color:white;font-weight:600;cursor:pointer;border-radius:5px;}
+.section{padding:80px 8%;}
+.section h2{margin-bottom:30px;font-size:28px;border-left:5px solid #4DA3FF;padding-left:10px;}
+.currencies{display:flex;flex-wrap:wrap;gap:20px;font-size:18px;}
+.card{background:#102A5C;padding:20px;border-radius:8px;flex:1 1 250px;}
+footer{background:#081735;padding:30px 8%;text-align:center;color:#cbd5e1;}
+input, select{padding:8px;margin:5px 0;width:100%;border-radius:5px;border:none;font-size:16px;}
+#result{margin-top:15px;font-weight:600;font-size:18px;color:#4DA3FF;}
+</style>
+</head>
+<body>
+
+<header>
+    <div class="logo">Rahim <span>Forex Exchange</span></div>
+    <nav>
+        <a href="#about">About</a>
+        <a href="#services">Services</a>
+        <a href="#market">Market</a>
+        <a href="#contact">Contact</a>
+    </nav>
+</header>
+
+<section class="hero">
+    <h1>Fast • Secure • Global</h1>
+    <p>Your Trusted Pan-African Financial Partner</p>
+</section>
+
+<section id="about" class="section">
+    <h2>About Us</h2>
+    <p>
+        Rahim Forex Exchange is a Ghana-based Pan-African financial institution
+        providing secure currency exchange and international transfer services.
+        We connect Africa to global markets with professionalism, transparency,
+        and financial integrity.
+    </p>
+</section>
+
+<section id="services" class="section">
+    <h2>Currency Exchange</h2>
+    <div class="currencies">
+        <div class="card">🇺🇸 USD – US Dollar</div>
+        <div class="card">🇪🇺 EUR – Euro</div>
+        <div class="card">🇬🇧 GBP – British Pound</div>
+        <div class="card">🇦🇪 AED – UAE Dirham</div>
+        <div class="card">🇨🇫 CFA – Franc CFA</div>
+        <div class="card">🇬🇭 GHS – Ghana Cedi</div>
+    </div>
+</section>
+
+<section class="section">
+    <h2>Currency Converter (Buy / Sell)</h2>
+    <div class="card">
+        <label>Currency:</label>
+        <select id="currency">
+            <option value="USD">🇺🇸 USD</option>
+            <option value="EUR">🇪🇺 EUR</option>
+            <option value="GBP">🇬🇧 GBP</option>
+            <option value="AED">🇦🇪 AED</option>
+            <option value="CFA">🇨🇫 CFA</option>
+            <option value="GHS">🇬🇭 GHS</option>
+        </select>
+
+        <label>Type:</label>
+        <select id="type">
+            <option value="buy">Buy</option>
+            <option value="sell">Sell</option>
+        </select>
+
+        <label>Amount:</label>
+        <input type="number" id="amount" placeholder="Enter amount">
+
+        <button class="btn" onclick="convert()">Convert</button>
+
+        <h3 id="result">Total: ₵ 0.00</h3>
+    </div>
+</section>
+
+<section id="market" class="section">
+    <h2>Live Market Chart</h2>
+    <div class="tradingview-widget-container">
+      <div id="tradingview_chart"></div>
+      <script src="https://s3.tradingview.com/tv.js"></script>
+      <script>
+      new TradingView.widget({
+        "width": "100%",
+        "height": 400,
+        "symbol": "FX:USDGHS",
+        "interval": "D",
+        "timezone": "Africa/Accra",
+        "theme": "dark",
+        "style": "1",
+        "locale": "en",
+        "container_id": "tradingview_chart"
+      });
+      </script>
+    </div>
+</section>
+
+<section id="contact" class="section">
+    <h2>Contact Us</h2>
+    <p>📍 Accra – Ghana</p>
+    <p>📞 0557627201</p>
+    <p>📧 info@rahimforex.com</p>
+</section>
+
+<footer>
+    © 2026 Rahim Forex Exchange – All Rights Reserved
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+// Remplace "VOTRE_ID_SHEET_ICI" par l'ID de ton Google Sheet
+const sheetId = "VOTRE_ID_SHEET_ICI";
+const sheetName = "Sheet1";
+let exchangeRates = {};
+
+// Charger les taux depuis Google Sheets
+async function loadRates() {
+    try {
+        const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${sheetName}`;
+        const res = await axios.get(url);
+        const data = JSON.parse(res.data.substr(47).slice(0, -2));
+        data.table.rows.forEach(row => {
+            const currency = row.c[0].v;
+            const buy = parseFloat(row.c[1].v);
+            const sell = parseFloat(row.c[2].v);
+            exchangeRates[currency] = { buy, sell };
+        });
+        console.log("Rates loaded", exchangeRates);
+    } catch (err) {
+        console.error("Error loading rates", err);
+    }
+}
+
+// Convertisseur Buy / Sell
+function convert() {
+    const currency = document.getElementById("currency").value;
+    const type = document.getElementById("type").value;
+    const amount = parseFloat(document.getElementById("amount").value);
+    if (!exchangeRates[currency]) { alert("Rates not loaded"); return; }
+    const rate = exchangeRates[currency][type];
+    const total = amount * rate;
+    document.getElementById("result").innerHTML = "Total: ₵ " + total.toFixed(2);
+}
+
+// Charger les taux au démarrage
+loadRates();
+</script>
+
+</body>
+</html>
